@@ -20,6 +20,8 @@ def getComps(objIndex, foundObjs, verts, vertsNormal, faceSets):
             vertsNormal.append(line)
         elif line.find('f ', 0, 2) != -1:
             faceSets.append(line)
+        elif line.find('usemtl', 0, 6) != -1:
+            faceSets.append(line)
 
 def main():
     xverts = []
@@ -27,28 +29,35 @@ def main():
     xfaceSets = []
     objs = getOBJs()
     getComps(0, objs, xverts, xvertsNormal, xfaceSets)
+    matnum = 0
+    currentMat = ''
     for face in xfaceSets:
-        remFace = face.replace('f ', '')
-        remFace2 = remFace.replace('//', ' ')
-        remFace3 = remFace2.replace('\n', '')
-        indexs = remFace3.split(' ')
-        actVerts = []
-        actNormals = []
-        for i in range(len(indexs)):
-            if i%2 == 0:
-                cleanVerts = xverts[int(indexs[i])-1].replace('v ', '')
-                cleanVerts2 = cleanVerts.replace('\n', '')
-                splitVerts = cleanVerts2.split(' ')
-                actVerts.append((splitVerts[0] + 'f, ' + splitVerts[1] + 'f, ' + splitVerts[2] + 'f, '))
-            else:
-                cleanNormals = xvertsNormal[int(indexs[i])-1].replace('vn ', '')
-                cleanNormals2 = cleanNormals.replace('\n', '')
-                splitNormals = cleanNormals2.split(' ')
-                actNormals.append((splitNormals[0] + 'f, ' + splitNormals[1] + 'f, ' +splitNormals[2] + 'f,'))
+        if face.find('usemtl', 0, 6) != -1:
+            matnum = matnum + 1
+            currentMat = 'mat' + str(matnum)
+        else:
+            remFace = face.replace('f ', '')
+            remFace2 = remFace.replace('//', ' ')
+            remFace3 = remFace2.replace('\n', '')
+            indexs = remFace3.split(' ')
+            actVerts = []
+            actNormals = []
+            for i in range(len(indexs)):
+                if i%2 == 0:
+                    cleanVerts = xverts[int(indexs[i])-1].replace('v ', '')
+                    cleanVerts2 = cleanVerts.replace('\n', '')
+                    splitVerts = cleanVerts2.split(' ')
+                    actVerts.append((splitVerts[0] + 'f, ' + splitVerts[1] + 'f, ' + splitVerts[2] + 'f, '))
+                else:
+                    cleanNormals = xvertsNormal[int(indexs[i])-1].replace('vn ', '')
+                    cleanNormals2 = cleanNormals.replace('\n', '')
+                    splitNormals = cleanNormals2.split(' ')
+                    actNormals.append((splitNormals[0] + 'f, ' + splitNormals[1] + 'f, ' +splitNormals[2] + 'f, '))
 
-        print(actVerts[0] + actNormals[0])
-        print(actVerts[1] + actNormals[1])
-        print(actVerts[2] + actNormals[2])
+            print(actVerts[0] + actNormals[0] + currentMat + ', ')
+            print(actVerts[1] + actNormals[1] + currentMat + ', ')
+            print(actVerts[2] + actNormals[2] + currentMat + ', ')
+
 
 if __name__ == "__main__":
     main()
